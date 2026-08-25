@@ -273,7 +273,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 
 
     <div class="send" id="send">
       <h2>Отправить ответы</h2>
-      <p>Нажмите кнопку — откроется Telegram с готовым текстом, останется выбрать чат и отправить. Если удобнее почтой или вы на компьютере без Telegram, есть второй вариант.</p>
+      <p>Нажмите кнопку — откроется Telegram с готовым сообщением, останется только нажать «Отправить». Если удобнее почтой или вы на компьютере без Telegram, есть второй вариант.</p>
       <div class="btns">
         <a class="btn primary" id="btnTg" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>Отправить в Telegram</a>
         <a class="btn ghost" id="btnMail" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Отправить на почту</a>
@@ -385,10 +385,14 @@ function showPreview(t){
 document.getElementById('btnTg').addEventListener('click', e => {
   e.preventDefault(); const t = textOrWarn(); if (!t) return;
   showPreview(t);
-  // t.me/share opens Telegram with the text prefilled; the person picks the chat
-  const url = 'https://t.me/share/url?url=' + encodeURIComponent(' ') + '&text=' + encodeURIComponent(t);
+  // With a nick: open the chat directly with the text as a draft. Without: t.me/share lets the person pick a chat
+  const url = CONFIG.telegram
+    ? 'https://t.me/' + CONFIG.telegram + '?text=' + encodeURIComponent(t)
+    : 'https://t.me/share/url?url=' + encodeURIComponent(' ') + '&text=' + encodeURIComponent(t);
   window.open(url, '_blank');
-  setStatus('Открыли Telegram. Выберите чат' + (CONFIG.telegram ? ' @' + CONFIG.telegram : '') + ' и нажмите «Отправить». Текст ответов продублирован ниже на всякий случай.');
+  setStatus(CONFIG.telegram
+    ? 'Открыли Telegram: чат с @' + CONFIG.telegram + ', текст уже в поле ввода — нажмите «Отправить». Если Telegram не открылся, текст ответов продублирован ниже.'
+    : 'Открыли Telegram. Выберите чат и нажмите «Отправить». Текст ответов продублирован ниже на всякий случай.');
 });
 document.getElementById('btnMail').addEventListener('click', e => {
   e.preventDefault(); const t = textOrWarn(); if (!t) return;
